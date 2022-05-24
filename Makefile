@@ -2,10 +2,10 @@
 #
 
 # Note: Update the image version if the Dockerfile changes
-image_version = "v1"
+image_version = "v3"
 image_tag = "puppydog:${image_version}"
-python_version = 3.8.13
-dockerfile = Dockerfile
+python_version = 3.9.13
+dockerfile = Dockerfile.pyenv
 
 # The all-in-one image with pyenv, pdm, python, Jupyter, PyData Stack, etc.
 docker-build:
