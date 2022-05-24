@@ -1,4 +1,6 @@
 .DS_STORE
 *.swp
 pyenv/
+.pdm.toml
 __pypackages__/
+.env

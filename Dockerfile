@@ -16,6 +16,18 @@
 #     DS/ML projects in a global space to avoid reinstalling for every project
 #   - Keeps a local copy of the cookiecutter project template in the final image
 #   - Aims for a small final image (work in progress).
+#
+#
+# TODO:
+#   - User and Groups
+#     Everything is run as root at present, which is not a good practice.
+#     Change this to a local user and setup group and permissions accordingly.
+#
+#   - Git
+#     - git config --global init.defaultBranch main
+#     - git config --global user.name "user name"
+#     - git config --global user.email "user.name@email.com"
+#
 ###############################################################################
 
 ARG LINUX_CONTAINER=ubuntu:20.04
@@ -99,4 +111,40 @@ RUN pdm add -g ipython \
         seaborn \
         statsmodels
 
-CMD ["/bin/bash"]
+# Jupyter Server
+RUN apt-get update -y && \
+    apt-get upgrade -y && \
+    apt-get install -y bash \
+        bash-completion\
+        locales && \
+        apt-get clean && rm -rf /var/lib/apt/lists/* && \
+        echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
+        locale-gen
+
+RUN echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc && \
+    pdm --pep582 bash >> ~/.bashrc && \
+    pdm completion bash > /etc/bash_completion.d/pdm.bash-completion
+
+ENV LC_ALL=en_US.UTF-8 \
+    LANG=en_US.UTF-8 \
+    LANGUAGE=en_US.UTF-8 \
+    SHELL=/bin/bash
+
+EXPOSE 8888
+
+# Configure container startup
+VOLUME /root/work
+WORKDIR /root/work
+CMD ["start-notebook.sh", "--allow-root"]
+
+# Copy local files as late as possible to avoid cache busting
+COPY ./jupyter/start*.sh /usr/local/bin/
+# Currently need to have both jupyter_notebook_config and jupyter_server_config to support classic and lab
+COPY ./jupyter/jupyter_server_config.py /etc/jupyter/
+
+# HEALTHCHECK documentation: https://docs.docker.com/engine/reference/builder/#healthcheck
+# This healtcheck works well for `lab`, `notebook`, `nbclassic`, `server` and `retro` jupyter commands
+# https://github.com/jupyter/docker-stacks/issues/915#issuecomment-1068528799
+HEALTHCHECK  --interval=15s --timeout=3s --start-period=5s --retries=3 \
+    CMD wget -O- --no-verbose --tries=1 --no-check-certificate \
+        http${GEN_CERT:+s}://localhost:8888${JUPYTERHUB_SERVICE_PREFIX:-/}api || exit 1

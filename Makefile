@@ -2,10 +2,10 @@
 #
 
 # Note: Update the image version if the Dockerfile changes
-image_version = "v3"
+image_version = "v4"
 image_tag = "puppydog:${image_version}"
 python_version = 3.9.13
-dockerfile = Dockerfile.pyenv
+dockerfile = Dockerfile
 
 # The all-in-one image with pyenv, pdm, python, Jupyter, PyData Stack, etc.
 docker-build:
@@ -17,3 +17,6 @@ host_volume ?= ${PWD}
 # Note: delete the --rm option, if you plan to keep the container around after exiting it (may be to call docker commit).
 docker-run:
 	docker run -it --init --rm -v "${host_volume}:/root/work" ${image_tag}
+
+docker-run-jupyter:
+	docker run -it --init --rm -p 8888:8888 -v "${host_volume}:/root/work" ${image_tag}
