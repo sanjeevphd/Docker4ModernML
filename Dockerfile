@@ -18,16 +18,13 @@
 #   - Aims for a small final image (work in progress).
 ###############################################################################
 
-ARG LINUX_CONTAINER=ubuntu:18.04
+ARG LINUX_CONTAINER=ubuntu:20.04
 
 FROM $LINUX_CONTAINER as base
 
 LABEL maintainer="Goopy Flux <goopy.flux@gmail.com>"
 
 ARG python_version=3.9.13
-ARG NB_USER="earthling"
-
-USER root
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -35,12 +32,9 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update -y && \
     apt-get upgrade -y && \
     apt-get install -y \
-        bash \
-        bash-completion \
         build-essential \
         curl \
         git \
-        locales \
         libbz2-dev \
         libffi-dev \
         liblzma-dev \
@@ -56,53 +50,46 @@ RUN apt-get update -y && \
         wget \
         xz-utils \
         zlib1g-dev && \
-        apt-get clean && rm -rf /var/lib/apt/lists/* && \
-        echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
-        locale-gen
+        apt-get clean && \
+        rm -rf /var/lib/apt/lists/*
 
-ENV LC_ALL=en_US.UTF-8 \
-    LANG=en_US.UTF-8 \
-    LANGUAGE=en_US.UTF-8
-
-SHELL ["/bin/bash", "-c"]
-
-# Pyenv and Python
-RUN git clone https://github.com/pyenv/pyenv.git ${HOME}/.pyenv && \ 
-    # bash specific entries
-    cd ${HOME}/.pyenv && src/configure && make -C src && \
-    echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ${HOME}/.bashrc && \
-    echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ${HOME}/.bashrc && \
-    echo 'eval "$(pyenv init -)"' >> ${HOME}/.bashrc && \
-    # .profile entries
-    echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.profile && \
-    echo 'command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.profile && \
-    echo 'eval "$(pyenv init -)"' >> ~/.profile
-
+# Pyenv
+ENV HOME "/root"
 ENV PYENV_ROOT "${HOME}/.pyenv"
-ENV PATH "$PYENV_ROOT/bin:$PATH"
+ENV PATH "${PYENV_ROOT}/bin:${PATH}"
+
+RUN git clone https://github.com/pyenv/pyenv.git ${PYENV_ROOT}
+
+# Python
+RUN pyenv install $python_version && \
+    pyenv global $python_version
 
 RUN eval "$(pyenv init -)" && \
     eval "$(pyenv init --path)"
 
-RUN pyenv install $python_version && \
-    pyenv global $python_version
+# Python Development Master (PDM)
+ENV PATH "${HOME}/.pyenv/shims:${HOME}/.local/bin:${PATH}"
 
-# PDM
-ENV PATH "$HOME/.local/bin:$PATH"
+RUN curl -sSL https://raw.githubusercontent.com/pdm-project/pdm/main/install-pdm.py | python3 -
 
-RUN curl -sSL https://raw.githubusercontent.com/pdm-project/pdm/main/install-pdm.py | python3 - && \
-    eval "$(pdm --pep582)" && \
-    # bash specific entries
-    echo 'export PATH="$HOME/.local/bin:$PATH"' >> ${HOME}/.bashrc && \
-    pdm --pep582 bash >> ${HOME}/.bashrc && \
-    pdm completion bash > /etc/bash_completion.d/pdm.bash-completion
+RUN eval "$(pdm --pep582)" && \
+    pdm config global_project.fallback True
 
-# Do not copy the .pdm folder with global project settings. This may not work
-# if the Python version is different.
-# Better to use `pdm add -g <package>` for each package.
-# COPY ./.pdm .
+# Common packages for modern Python development
+RUN pdm add -g cookiecutter \
+        nox \
+        pre-commit \
+        flake8 \
+        sphinx \
+        sphinx-click \
+        furo \
+        black \
+        pytest \
+        coverage \
+        typer \
+        mypy
 
-# A common set of global Python Packages and Libraries used by all projects
+# Basic Python data science packages
 RUN pdm add -g ipython \
         jupyterlab \
         numpy \
@@ -111,23 +98,5 @@ RUN pdm add -g ipython \
         pandas \
         seaborn \
         statsmodels
-    # pdm run -g jupyter lab clean
 
-EXPOSE 8888
-
-# Configure container startup
-CMD ["start-notebook.sh"]
-
-# Copy local files as late as possible to avoid cache busting
-COPY ./jupyter/start*.sh /usr/local/bin/
-# Currently need to have both jupyter_notebook_config and jupyter_server_config to support classic and lab
-COPY ./jupyter/jupyter_server_config.py /etc/jupyter/
-
-# HEALTHCHECK documentation: https://docs.docker.com/engine/reference/builder/#healthcheck
-# This healtcheck works well for `lab`, `notebook`, `nbclassic`, `server` and `retro` jupyter commands
-# https://github.com/jupyter/docker-stacks/issues/915#issuecomment-1068528799
-HEALTHCHECK  --interval=15s --timeout=3s --start-period=5s --retries=3 \
-    CMD wget -O- --no-verbose --tries=1 --no-check-certificate \
-        http${GEN_CERT:+s}://localhost:8888${JUPYTERHUB_SERVICE_PREFIX:-/}api || exit 1
-
-ENV SHELL=/bin/bash
+CMD ["/bin/bash"]
