@@ -18,7 +18,7 @@
 #   - Aims for a small final image (work in progress).
 ###############################################################################
 
-ARG LINUX_CONTAINER=moninav/pyenv:3.9-ubuntu:20.04
+ARG LINUX_CONTAINER=ubuntu:18.04
 
 FROM $LINUX_CONTAINER as base
 
@@ -82,9 +82,52 @@ ENV PYENV_ROOT "${HOME}/.pyenv"
 ENV PATH "$PYENV_ROOT/bin:$PATH"
 
 RUN eval "$(pyenv init -)" && \
-    eval "$(pyenv init --path)" && \
-    . /etc/profile
+    eval "$(pyenv init --path)"
 
 RUN pyenv install $python_version && \
     pyenv global $python_version
 
+# PDM
+ENV PATH "$HOME/.local/bin:$PATH"
+
+RUN curl -sSL https://raw.githubusercontent.com/pdm-project/pdm/main/install-pdm.py | python3 - && \
+    eval "$(pdm --pep582)" && \
+    # bash specific entries
+    echo 'export PATH="$HOME/.local/bin:$PATH"' >> ${HOME}/.bashrc && \
+    pdm --pep582 bash >> ${HOME}/.bashrc && \
+    pdm completion bash > /etc/bash_completion.d/pdm.bash-completion
+
+# Do not copy the .pdm folder with global project settings. This may not work
+# if the Python version is different.
+# Better to use `pdm add -g <package>` for each package.
+# COPY ./.pdm .
+
+# A common set of global Python Packages and Libraries used by all projects
+RUN pdm add -g ipython \
+        jupyterlab \
+        numpy \
+        scipy \
+        matplotlib \
+        pandas \
+        seaborn \
+        statsmodels
+    # pdm run -g jupyter lab clean
+
+EXPOSE 8888
+
+# Configure container startup
+CMD ["start-notebook.sh"]
+
+# Copy local files as late as possible to avoid cache busting
+COPY ./jupyter/start*.sh /usr/local/bin/
+# Currently need to have both jupyter_notebook_config and jupyter_server_config to support classic and lab
+COPY ./jupyter/jupyter_server_config.py /etc/jupyter/
+
+# HEALTHCHECK documentation: https://docs.docker.com/engine/reference/builder/#healthcheck
+# This healtcheck works well for `lab`, `notebook`, `nbclassic`, `server` and `retro` jupyter commands
+# https://github.com/jupyter/docker-stacks/issues/915#issuecomment-1068528799
+HEALTHCHECK  --interval=15s --timeout=3s --start-period=5s --retries=3 \
+    CMD wget -O- --no-verbose --tries=1 --no-check-certificate \
+        http${GEN_CERT:+s}://localhost:8888${JUPYTERHUB_SERVICE_PREFIX:-/}api || exit 1
+
+ENV SHELL=/bin/bash
