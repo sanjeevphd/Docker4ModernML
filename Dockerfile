@@ -18,6 +18,31 @@
 #   - Aims for a small final image (work in progress).
 #
 #
+# Installed Packages:
+#   - Python Development
+#     - cookiecutter
+#     - nox
+#     - pre-commit
+#     - flake8
+#     - sphinx
+#     - sphinx-click
+#     - furo
+#     - black
+#     - pytest
+#     - coverage
+#     - typer
+#     - mypy
+#
+#   - Basic Python data science packages
+#     - ipython
+#     - jupyterlab
+#     - numpy
+#     - scipy
+#     - matplotlib
+#     - pandas
+#     - seaborn
+#     - statsmodels
+#
 # TODO:
 #   - User and Groups
 #     Everything is run as root at present, which is not a good practice.

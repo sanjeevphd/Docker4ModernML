@@ -2,7 +2,7 @@
 #
 
 # Note: Update the image version if the Dockerfile changes
-image_version = "v4"
+image_version = "latest"
 image_tag = "puppydog:${image_version}"
 python_version = 3.9.13
 dockerfile = Dockerfile
