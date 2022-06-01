@@ -14,7 +14,7 @@ Requirements
 ============
 
 - Docker
-- Bonus: GNU make to make full use of the `Makefile`
+- Bonus: GNU make to make full use of the ``Makefile``
 
 Note: This has only been tested on macOS. Linux support is assumed. Windows support is untested.
 
@@ -30,7 +30,7 @@ Basic usage
 
 Automatically pulls the latest image from Docker Hub the first time it is run. Subsequent runs will use local copy and will be faster. Copy the link to the Jupyter Lab server and paste it into a browser of your choice to access the Jupyter Lab.
 
-By default, the current working directory `$PWD` will be used as the local directory that will be mapped to `/root/work` directory on the Docker container.
+By default, the current working directory ``$PWD`` will be used as the local directory that will be mapped to ``/root/work`` directory on the Docker container.
 
 Specify Folder
 --------------
@@ -39,7 +39,7 @@ Specify Folder
 
    make docker-run host_volume=/full/path/to/local/folder
 
-Use the `host_volume` option to specify the local folder to be used by the Docker container. The specified folder will be available under `/root/work` in the Docker container.
+Use the ``host_volume`` option to specify the local folder to be used by the Docker container. The specified folder will be available under ``/root/work`` in the Docker container.
 
 Build Docker Image
 ------------------
@@ -51,7 +51,7 @@ Build Docker Image
 Push Docker Image to Docker Hub
 -------------------------------
 
-This step requires creating an account and a repository on Docker Hub (free for public images). Update the `docker_hub_repo` variable in `Makefile` to point to the correct repo on Docker Hub. 
+This step requires creating an account and a repository on Docker Hub (free for public images). Update the `docker_hub_repo`` variable in ``Makefile`` to point to the correct repo on Docker Hub. 
 
 .. code:: sh
 
@@ -60,8 +60,8 @@ This step requires creating an account and a repository on Docker Hub (free for 
 Features
 ========
 
-- Uses `pyenv` for managing Python version
-- Uses Python Development Master (`pdm`) for managing dependencies and packaging
+- Uses ``pyenv`` for managing Python version
+- Uses Python Development Master (``pdm``) for managing dependencies and packaging
 - Uses Cookiecutter for project scaffolding
 - Keeps the common packages and libraries related to Python development and DS/ML projects in a global space to avoid reinstalling for every project
 - Keeps a local copy of the cookiecutter project template in the final image
