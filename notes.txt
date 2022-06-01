@@ -1,0 +1,9 @@
+Tasks
+=====
+
+- Create readme.
+- Add .dockerignore file
+- Look at Docker image repos by Civisanalytics, Jupyer for how to manage docker repos.
+- Push to GitHub.
+- Support CI/CD with GitHub Actions (ex. On git push, build docker image, test and push to docker hub).
+- Write about it all

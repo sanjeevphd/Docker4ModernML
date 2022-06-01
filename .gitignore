@@ -4,3 +4,4 @@ pyenv/
 .pdm.toml
 __pypackages__/
 .env
+.vscode/
