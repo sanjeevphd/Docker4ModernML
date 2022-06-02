@@ -96,24 +96,4 @@ Installed Packages
   - seaborn
   - statsmodels
 
-TODO
-====
-
-**User and Groups**
-  
-  - Everything is run as root at present, which is not a good practice.
-  - Change this to a local user and setup group and permissions accordingly.
-
-**Git**
-
-  - git config --global init.defaultBranch main
-  - git config --global user.name "user name"
-  - git config --global user.email "user.name@email.com"
-
-**Jupyter Lab**
-
-  - Fix issue where connecting to Jupyter Lab Server from VS Code causes the messags below to appear, repeatedly.
-
-    [W 2022-06-01 14:25:04.100 ServerApp] Forbidden
-    
-    [W 2022-06-01 14:25:04.102 ServerApp] 403 GET /api/kernels?1654093499976 (172.17.0.1) 167.87ms referer=None
+.. include:: notes.rst

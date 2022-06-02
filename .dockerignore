@@ -1,0 +1,7 @@
+README.rst
+notes.txt
+Makefile
+**/.git
+**/.gitignore
+*.old
+**/.DS_STORE

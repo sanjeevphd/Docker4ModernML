@@ -25,3 +25,5 @@ docker-push:
 	docker tag "${image_tag}" "${remote_image_tag}"
 	docker push "${remote_image_tag}"
 
+git-push:
+	git push -u origin main
