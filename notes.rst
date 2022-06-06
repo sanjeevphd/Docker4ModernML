@@ -6,6 +6,7 @@ To Do
   - Create readme. [done]
   - Add .dockerignore file [done]
   - Push to GitHub. [done]
+  - Add a default editor - vim. Perhaps setup an editor option.
   - Support CI/CD with GitHub Actions (ex. On git push, build docker image, test and push to docker hub).
   - Write about it all
 
