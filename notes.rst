@@ -6,7 +6,8 @@ To Do
   - Create readme. [done]
   - Add .dockerignore file [done]
   - Push to GitHub. [done]
-  - Add a default editor - vim. Perhaps setup an editor option.
+  - Add a default editor - vim. Perhaps setup an editor option. [Done]
+  - Are pre-commit hooks a bit much here?
   - Support CI/CD with GitHub Actions (ex. On git push, build docker image, test and push to docker hub).
   - Write about it all
 
@@ -17,14 +18,9 @@ To Do
 
 **Git**
 
-  - Change the default branch from ``master`` to ``main``.::
+  - [Done] Change the default branch from ``master`` to ``main``.::
     
       git config --global init.defaultBranch main
-
-  - Add git user name and email.::
-    
-      git config --global user.name "user name"
-      git config --global user.email "user.name@email.com"
 
 **Jupyter Lab**
 

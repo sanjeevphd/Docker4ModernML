@@ -89,11 +89,15 @@ RUN apt-get update -y && \
         make \
         python-openssl \
         tk-dev \
+        vim \
         wget \
         xz-utils \
         zlib1g-dev && \
         apt-get clean && \
         rm -rf /var/lib/apt/lists/*
+
+# Git
+RUN git config --global init.defalutBranch main
 
 # Pyenv
 ENV HOME "/root"
