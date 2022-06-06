@@ -121,6 +121,10 @@ RUN curl -sSL https://raw.githubusercontent.com/pdm-project/pdm/main/install-pdm
 RUN eval "$(pdm --pep582)" && \
     pdm config global_project.fallback True
 
+RUN echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc && \
+    pdm --pep582 bash >> ~/.bashrc && \
+    pdm completion bash > /etc/bash_completion.d/pdm.bash-completion
+
 # Common packages for modern Python development
 RUN pdm add -g cookiecutter \
         nox \
@@ -155,10 +159,6 @@ RUN apt-get update -y && \
         echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
         locale-gen
 
-RUN echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc && \
-    pdm --pep582 bash >> ~/.bashrc && \
-    pdm completion bash > /etc/bash_completion.d/pdm.bash-completion
-
 ENV LC_ALL=en_US.UTF-8 \
     LANG=en_US.UTF-8 \
     LANGUAGE=en_US.UTF-8 \
@@ -179,6 +179,6 @@ COPY ./jupyter/jupyter_server_config.py /etc/jupyter/
 # HEALTHCHECK documentation: https://docs.docker.com/engine/reference/builder/#healthcheck
 # This healtcheck works well for `lab`, `notebook`, `nbclassic`, `server` and `retro` jupyter commands
 # https://github.com/jupyter/docker-stacks/issues/915#issuecomment-1068528799
-HEALTHCHECK  --interval=15s --timeout=3s --start-period=5s --retries=3 \
-    CMD wget -O- --no-verbose --tries=1 --no-check-certificate \
-        http${GEN_CERT:+s}://localhost:8888${JUPYTERHUB_SERVICE_PREFIX:-/}api || exit 1
+# HEALTHCHECK  --interval=15s --timeout=3s --start-period=5s --retries=3 \
+    # CMD wget -O- --no-verbose --tries=1 --no-check-certificate \
+        # http${GEN_CERT:+s}://localhost:8888${JUPYTERHUB_SERVICE_PREFIX:-/}api || exit 1
