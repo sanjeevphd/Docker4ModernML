@@ -1,37 +1,141 @@
-## Welcome to GitHub Pages
+# Modern Machine Learning with Python and Docker
 
-You can use the [editor on GitHub](https://github.com/sanjeevphd/Docker4ModernML/edit/gh-pages/index.md) to maintain and preview the content for your website in Markdown files.
+A modern approach to data science and machine learning using Python &
+Docker.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+## Goals
 
-### Markdown
+-   Use a modern Python development stack geared towards automation and
+    best practices.
+-   Harness Docker for a reproducible, portable development environment
+    and ease transition to production.
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+## Requirements
 
-```markdown
-Syntax highlighted code block
+-   Docker
+-   Bonus: GNU make to make full use of the `Makefile`
 
-# Header 1
-## Header 2
-### Header 3
+Note: This has only been tested on macOS. Linux support is assumed.
+Windows support is untested.
 
-- Bulleted
-- List
+## Usage
 
-1. Numbered
-2. List
+### Basic usage
 
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
+``` sh
+make docker-run
 ```
 
-For more details see [Basic writing and formatting syntax](https://docs.github.com/en/github/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax).
+Automatically pulls the latest image from Docker Hub the first time it
+is run. Subsequent runs will use local copy and will be faster. Copy the
+link to the Jupyter Lab server and paste it into a browser of your
+choice to access the Jupyter Lab.
 
-### Jekyll Themes
+By default, the current working directory `$PWD` will be used as the
+local directory that will be mapped to `/root/work` directory on the
+Docker container.
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/sanjeevphd/Docker4ModernML/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+### Specify Folder
 
-### Support or Contact
+``` sh
+make docker-run host_volume=/full/path/to/local/folder
+```
 
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+Use the `host_volume` option to specify the local folder to be used by
+the Docker container. The specified folder will be available under
+`/root/work` in the Docker container.
+
+### Build Docker Image
+
+``` sh
+make docker-build
+```
+
+### Push Docker Image to Docker Hub
+
+This step requires creating an account and a repository on Docker Hub
+(free for public images). Update the [docker_hub_repo]{.title-ref}[
+variable in ]{.title-ref}[Makefile]{.title-ref}\` to point to the
+correct repo on Docker Hub.
+
+``` sh
+make docker-push
+```
+
+## Features
+
+-   Uses `pyenv` for managing Python version
+-   Uses Python Development Master (`pdm`) for managing dependencies and
+    packaging
+-   Uses Cookiecutter for project scaffolding
+-   Keeps the common packages and libraries related to Python
+    development and DS/ML projects in a global space to avoid
+    reinstalling for every project
+-   Keeps a local copy of the cookiecutter project template in the final
+    image
+-   Aims for a small final image (work in progress).
+
+## Installed Packages
+
+**Python Development**
+
+> -   cookiecutter
+> -   nox
+> -   pre-commit
+> -   flake8
+> -   sphinx
+> -   sphinx-click
+> -   furo
+> -   black
+> -   pytest
+> -   coverage
+> -   typer
+> -   mypy
+
+**Basic Python data science packages**
+
+> -   ipython
+> -   jupyterlab
+> -   numpy
+> -   scipy
+> -   matplotlib
+> -   pandas
+> -   seaborn
+> -   statsmodels
+
+## To Do
+
+**General**
+
+> -   Create readme. \[done\]
+> -   Add .dockerignore file \[done\]
+> -   Push to GitHub. \[done\]
+> -   Add a default editor - vim. Perhaps setup an editor option.
+>     \[Done\]
+> -   Are pre-commit hooks a bit much here?
+> -   Support CI/CD with GitHub Actions (ex. On git push, build docker
+>     image, test and push to docker hub).
+> -   Write about it all
+
+**User and Groups**
+
+> -   Everything is run as root at present, which is not a good
+>     practice.
+> -   Change this to a local user and setup group and permissions
+>     accordingly.
+
+**Git**
+
+> -   \[Done\] Change the default branch from `master` to `main`.:
+>
+>         git config --global init.defaultBranch main
+
+**Jupyter Lab**
+
+> -   Fix issue where connecting to Jupyter Lab Server from VS Code
+>     causes the messags below to appear, repeatedly.
+>
+>     ``` sh
+>     [W 2022-06-01 14:25:04.100 ServerApp] Forbidden
+>     [W 2022-06-01 14:25:04.102 ServerApp] 403 GET /api/kernels?1654093499976 (172.17.0.1) 167.87ms referer=None
+>     ```
